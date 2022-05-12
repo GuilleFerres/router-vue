@@ -20,14 +20,46 @@ const router = createRouter({
                 { name: 'team-members', path: ':teamId', component: TeamMembers, props: true }, // /teams/t1
             ] 
         },
-        { path: '/users', components: {
-            default: UsersList,
-            footer: UsersFooter
-        } },// our-domain.com/teams
+        { 
+            path: '/users', components: {
+                default: UsersList,
+                footer: UsersFooter
+            },
+            beforeEnter(to, from, next) {
+                console.log('users beforeEach');
+                console.log(to, from);
+                next();
+            }
+         },// our-domain.com/teams
         { path: '/:notFound(.*)', component: NotFound }
     ],
-    linkActiveClass: 'active'
+    linkActiveClass: 'active',
+    scrollBehavior(_, _2, savedPosition){ // _  _2, significan que existen dos argumentos pero que probablemente no se usen
+        // console.log(to, from , savedPosition);
+        if(savedPosition){
+            return savedPosition;
+        }
+        return { left: 0, top: 0 };
+    }
 });
+
+router.beforeEach(function(to, from, next) { 
+    console.log('Global beforeEach')
+    console.log(to, from);
+    // if(to.name === 'team-members'){
+    //     next();
+    // }else{
+    //     next({name: 'team-members', params: {teamId: 't2'}});
+    // }
+    next();
+    
+});
+router.afterEach(function(to, from) {
+    // sending analytics data
+    console.log('Global afterEach');
+    console.log(to, from);
+});
+
 const app = createApp(App)
 
 app.use(router);
